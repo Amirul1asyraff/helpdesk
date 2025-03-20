@@ -37,26 +37,34 @@ class ResponseController extends Controller
     }
     public function update(Request $request, Response $response)
     {
-        // Validation
+        // Authorize the request first
+        $this->authorize('update', $response);
+
+        // Validate the form input
         $validated = $request->validate([
-            'message' => 'required|string|max:1000',
+            'message' => 'required|string',
         ]);
 
-        // Update
-        $response->content = $validated['message'];
-        $response->save();
+        // Map the validated 'message' field to the database 'content' column
+        $response->update([
+            'content' => $validated['message']
+        ]);
 
-        return redirect()->back()->with('success', 'Response updated successfully');
+        // Get the ticket for redirect
+        $ticket = Ticket::findOrFail($response->ticket_id);
+
+        return redirect()->route('tickets.show', $ticket->uuid)
+            ->with('success', 'Response updated successfully');
     }
 
-    public function destroy(Request $request, Response $response)
+    public function destroy(Response $response)
     {
-         // Authorization check
-        // $this->authorize('delete', $response);
+        $this->authorize('delete', $response);
 
-        // Delete
+        $ticket = Ticket::findOrFail($response->ticket_id);
         $response->delete();
 
-        return redirect()->back()->with('success', 'Response deleted successfully');
+        return redirect()->route('tickets.show', $ticket->uuid)
+            ->with('success', 'Response deleted successfully');
     }
 }

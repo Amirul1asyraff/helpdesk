@@ -151,94 +151,101 @@
                                         </div>
                                         <p class="mb-2">{{ $response->content ?? 'No response content' }}</p>
 
-                                        @if (auth()->id() == $response->response_by || auth()->user())
-                                            <div class="d-flex justify-content-end mt-2">
+                                        <div class="d-flex justify-content-end mt-2">
+                                            @can('update', $response)
                                                 <button type="button" class="btn btn-outline-primary me-2"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#editResponseModal{{ $response->id }}">
                                                     <i class="bi bi-pencil"></i> Edit
                                                 </button>
+                                            @endcan
+
+                                            @can('delete', $response)
                                                 <button type="button" class="btn btn-outline-danger"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#deleteResponseModal{{ $response->id }}">
                                                     <i class="bi bi-trash"></i> Delete
                                                 </button>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- Edit Response Modal -->
-                                    <div class="modal fade" id="editResponseModal{{ $response->id }}"
-                                        tabindex="-1" aria-labelledby="editResponseModalLabel{{ $response->id }}"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title"
-                                                        id="editResponseModalLabel{{ $response->id }}">Edit
-                                                        Response</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                        aria-label="Close"></button>
-                                                </div>
-                                                <form action="{{ route('responses.update', $response->id) }}"
-                                                    method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <div class="modal-body">
-                                                        <div class="form-group">
-                                                            <label for="edit_message_{{ $response->id }}">Response
-                                                                Content</label>
-                                                            <textarea class="form-control" id="edit_message_{{ $response->id }}" name="message" rows="3" required>{{ $response->content }}</textarea>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary"
-                                                            data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn btn-primary">Update
-                                                            Response</button>
-                                                    </div>
-                                                </form>
-                                            </div>
+                                            @endcan
                                         </div>
                                     </div>
 
-                                    <!-- Delete Response Modal -->
-                                    <div class="modal fade" id="deleteResponseModal{{ $response->id }}"
-                                        tabindex="-1"
-                                        aria-labelledby="deleteResponseModalLabel{{ $response->id }}"
-                                        aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title"
-                                                        id="deleteResponseModalLabel{{ $response->id }}">Confirm
-                                                        Deletion</h5>
-                                                    <button type="button" class="btn-close"
-                                                        data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <p>Are you sure you want to delete this response?</p>
-                                                    <p class="text-muted fst-italic">
-                                                        "{{ Str::limit($response->content, 100) }}"</p>
-                                                    <p class="text-danger"><small>This action cannot be
-                                                            undone.</small></p>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        data-bs-dismiss="modal">Cancel</button>
-                                                    <form action="{{ route('responses.destroy', $response->id) }}"
+                                    <!-- Edit Response Modal - Only show if user can update -->
+                                    @can('update', $response)
+                                        <div class="modal fade" id="editResponseModal{{ $response->id }}"
+                                            tabindex="-1" aria-labelledby="editResponseModalLabel{{ $response->id }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"
+                                                            id="editResponseModalLabel{{ $response->id }}">Edit
+                                                            Response</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                            aria-label="Close"></button>
+                                                    </div>
+                                                    <form action="{{ route('responses.update', $response->id) }}"
                                                         method="POST">
                                                         @csrf
-                                                        @method('DELETE')
-                                                        <input type="hidden" name="ticket_id"
-                                                            value="{{ $ticket->id }}">
-                                                        <button type="submit"
-                                                            class="btn btn-danger">Delete</button>
+                                                        @method('PUT')
+                                                        <div class="modal-body">
+                                                            <div class="form-group">
+                                                                <label for="edit_message_{{ $response->id }}">Response
+                                                                    Content</label>
+                                                                <textarea class="form-control" id="edit_message_{{ $response->id }}" name="message" rows="3" required>{{ $response->content }}</textarea>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-primary">Update
+                                                                Response</button>
+                                                        </div>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    @endcan
+
+                                    <!-- Delete Response Modal - Only show if user can delete -->
+                                    @can('delete', $response)
+                                        <div class="modal fade" id="deleteResponseModal{{ $response->id }}"
+                                            tabindex="-1"
+                                            aria-labelledby="deleteResponseModalLabel{{ $response->id }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title"
+                                                            id="deleteResponseModalLabel{{ $response->id }}">Confirm
+                                                            Deletion</h5>
+                                                        <button type="button" class="btn-close"
+                                                            data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete this response?</p>
+                                                        <p class="text-muted fst-italic">
+                                                            "{{ Str::limit($response->content, 100) }}"</p>
+                                                        <p class="text-danger"><small>This action cannot be
+                                                                undone.</small></p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">Cancel</button>
+                                                        <form action="{{ route('responses.destroy', $response->id) }}"
+                                                            method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <input type="hidden" name="ticket_id"
+                                                                value="{{ $ticket->id }}">
+                                                            <button type="submit"
+                                                                class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endcan
                                 @endforeach
                             </div>
                         @else
@@ -261,6 +268,12 @@
 
                             <button type="submit" class="btn btn-primary">Submit Response</button>
                         </form>
+                        <!-- Add this temporarily for debugging -->
+                        <div class="small text-muted">
+                            Auth ID: {{ auth()->id() }} |
+                            Response By: {{ $response->response_by }} |
+                            Match: {{ auth()->id() == $response->response_by ? 'Yes' : 'No' }}
+                        </div>
                     </div>
                 </div>
             </div>
